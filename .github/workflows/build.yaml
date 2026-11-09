@@ -60,9 +60,6 @@ jobs:
           name: linux-build
           path: |
             release/CCloud-linux.tar.gz
-            release/CCloud-*-linux.AppImage
-            release/ccloud.deb
-            release/ccloud.rpm
   release:
     needs: [build-linux]
     runs-on: ubuntu-latest
@@ -108,6 +105,5 @@ jobs:
             | Platform | Architecture | Download |
             |----------|-------------|----------|
             | Linux    | x64 (tar.gz) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-linux.tar.gz"><img src="https://img.shields.io/badge/Linux-tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux tar.gz"></a> |
-            | Linux    | x64 (AppImage) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-${{ env.VERSION }}-linux.AppImage"><img src="https://img.shields.io/badge/Linux-AppImage-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux AppImage"></a> |
             
             For detailed instructions on installing and running CCloud on Linux, please refer to our [Linux Installation Guide](https://github.com/${{ github.repository }}/blob/master/assets/LINUX_INSTALL.md).
