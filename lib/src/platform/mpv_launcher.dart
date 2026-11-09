@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class VLCLauncher {
+class mpvLauncher {
   /// Returns the name of the preferred media player for the current platform.
   static String get playerName {
     if (kIsWeb) return 'پلیر';
     if (Platform.isMacOS) return 'Samavar Lite';
     if (Platform.isWindows) return 'PotPlayer';
-    return 'VLC';
+    return 'mpv';
   }
 
   /// Button label in Persian for launching the media player.
@@ -18,9 +18,9 @@ class VLCLauncher {
   static String get playErrorMessage => 'نمی‌توان لینک را در $playerName باز کرد';
 
   /// Launches the given media [url] in the platform's preferred media player.
-  /// - macOS: /Applications/Samavar Lite.app (with VLC and system fallback)
-  /// - Windows: PotPlayer (with VLC and system fallback)
-  /// - Linux: Samavar Lite or VLC (with system fallback)
+  /// - macOS: /Applications/Samavar Lite.app (with mpv and system fallback)
+  /// - Windows: PotPlayer (with mpv and system fallback)
+  /// - Linux: Samavar Lite or mpv (with system fallback)
   static Future<bool> launchPlayer(String url) async {
     try {
       if (kIsWeb) {
@@ -43,7 +43,7 @@ class VLCLauncher {
   }
 
   /// Backward-compatible alias for [launchPlayer].
-  static Future<bool> launchInVLC(String url) => launchPlayer(url);
+  static Future<bool> launchInmpv(String url) => launchPlayer(url);
 
   static Future<bool> _launchOnMacOS(String url) async {
     try {
@@ -100,9 +100,9 @@ class VLCLauncher {
       ]);
       if (appNameResult.exitCode == 0) return true;
 
-      // Fallback: check if VLC is installed on macOS
-      final vlcResult = await Process.run('open', ['-a', 'VLC', url]);
-      if (vlcResult.exitCode == 0) return true;
+      // Fallback: check if mpv is installed on macOS
+      final mpvResult = await Process.run('open', ['-a', 'mpv', url]);
+      if (mpvResult.exitCode == 0) return true;
 
       // Fallback to default external application
       final Uri uri = Uri.parse(url);
@@ -207,13 +207,13 @@ class VLCLauncher {
         if (result.exitCode == 0) return true;
       } catch (_) {}
 
-      // 5. Fallback to VLC on Windows if PotPlayer is not found
-      final vlcPaths = <String>[
-        for (final dir in baseDirs) '$dir\\VideoLAN\\VLC\\vlc.exe',
+      // 5. Fallback to mpv on Windows if PotPlayer is not found
+      final mpvPaths = <String>[
+        for (final dir in baseDirs) '$dir\\VideoLAN\\mpv\\mpv.exe',
       ];
-      for (final path in vlcPaths) {
-        final File vlcExecutable = File(path);
-        if (await vlcExecutable.exists()) {
+      for (final path in mpvPaths) {
+        final File mpvExecutable = File(path);
+        if (await mpvExecutable.exists()) {
           try {
             await Process.start(
               path,
@@ -250,13 +250,13 @@ class VLCLauncher {
         }
       } catch (_) {}
 
-      // 2. Try VLC in PATH
+      // 2. Try mpv in PATH
       try {
-        final whichResult = await Process.run('which', ['vlc']);
+        final whichResult = await Process.run('which', ['mpv']);
         if (whichResult.exitCode == 0 &&
             (whichResult.stdout as String).trim().isNotEmpty) {
           await Process.start(
-            'vlc',
+            'mpv',
             [url],
             mode: ProcessStartMode.detached,
           );
@@ -264,12 +264,12 @@ class VLCLauncher {
         }
       } catch (_) {}
 
-      // 3. Try standard VLC path
-      const vlcPath = '/usr/bin/vlc';
-      final File vlcExecutable = File(vlcPath);
-      if (await vlcExecutable.exists()) {
+      // 3. Try standard mpv path
+      const mpvPath = '/usr/bin/mpv';
+      final File mpvExecutable = File(mpvPath);
+      if (await mpvExecutable.exists()) {
         await Process.start(
-          vlcPath,
+          mpvPath,
           [url],
           mode: ProcessStartMode.detached,
         );
@@ -286,6 +286,6 @@ class VLCLauncher {
   }
 }
 
-/// Type alias so code can use either [MediaPlayerLauncher] or [VLCLauncher].
-typedef MediaPlayerLauncher = VLCLauncher;
+/// Type alias so code can use either [MediaPlayerLauncher] or [mpvLauncher].
+typedef MediaPlayerLauncher = mpvLauncher;
 
