@@ -12,119 +12,6 @@ on:
         default: 'v1.0.0'
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build Windows
-        run: flutter build windows --release
-
-      - name: Install Inno Setup
-        run: |
-          choco install innosetup -y
-        shell: cmd
-
-      - name: Create Windows installer
-        run: |
-          cd windows\installer
-          ISCC.exe CCloud.iss
-        shell: cmd
-
-      - name: Package Windows build
-        run: |
-          mkdir -p release
-          copy windows\installer\ccloud_gui-setup.exe release\
-        shell: cmd
-
-      - name: Create Windows Portable ZIP
-        run: |
-          mkdir -p release\portable
-          xcopy build\windows\x64\runner\Release\* release\portable\ /E /I
-          cd release
-          7z a -tzip CCloud-windows-portable.zip portable\
-        shell: cmd
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build
-          path: |
-            release/ccloud_gui-setup.exe
-            release/CCloud-windows-portable.zip
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Enable macOS desktop support
-        run: flutter config --enable-macos-desktop
-
-      - name: Build macOS
-        run: flutter build macos --release --no-tree-shake-icons
-
-      - name: Create Universal Binary
-        run: |
-          # Create a universal binary that works on both Intel and Apple Silicon
-          mkdir -p release
-          
-          # The built app is already a universal binary by default
-          # Copy the app bundle to a temporary location
-          TEMP_DIR=$(mktemp -d)
-          APP_PATH=$(find build/macos/Build/Products/Release -name "*.app" -maxdepth 1 | head -n 1)
-          cp -R "$APP_PATH" "$TEMP_DIR/CCloud.app"
-          
-          # Create the DMG using create-dmg tool
-          brew install create-dmg
-          
-          create-dmg \
-            --volname "CCloud Installer" \
-            --window-pos 200 120 \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --app-drop-link 600 185 \
-            "release/CCloud-macos-universal.dmg" \
-            "$TEMP_DIR/"
-          
-          # Clean up
-          rm -rf "$TEMP_DIR"
-
-      - name: Create ZIP
-        run: |
-          # Create a ZIP archive of the app bundle
-          mkdir -p release
-          APP_PATH=$(find build/macos/Build/Products/Release -name "*.app" -maxdepth 1 | head -n 1)
-          APP_DIR=$(dirname "$APP_PATH")
-          APP_NAME=$(basename "$APP_PATH")
-          (cd "$APP_DIR" && zip -r -y "$GITHUB_WORKSPACE/release/CCloud-macos-universal.zip" "$APP_NAME")
-
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: |
-            release/CCloud-macos-universal.dmg
-            release/CCloud-macos-universal.zip
-
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -306,24 +193,14 @@ jobs:
             release/ccloud.deb
             release/ccloud.rpm
   release:
-    needs: [build-windows, build-macos, build-linux]
+    needs: [build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-build
-
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-build
-
+        
       - name: Download Linux artifacts
         uses: actions/download-artifact@v4
         with:
@@ -351,10 +228,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ccloud_gui-setup.exe
-            CCloud-windows-portable.zip
-            CCloud-macos-universal.dmg
-            CCloud-macos-universal.zip
             CCloud-linux.tar.gz
             CCloud-*-linux.AppImage
             ccloud.deb
@@ -362,20 +235,10 @@ jobs:
           body: |            
             ## CCloud Release ${{ env.TAG_NAME }}
             
-            ### Important Note for Windows Users
-            
-            If you encounter any errors when installing or running CCloud on Windows, please install the Microsoft Visual C++ Redistributable 2015-2022 and then try installing or running CCloud again.
-            
-            You can download it from the official Microsoft website: [Microsoft Visual C++ Redistributable](https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist)
-            
             ### Download
             
             | Platform | Architecture | Download |
             |----------|-------------|----------|
-            | Windows  | x64 (Installer) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/ccloud_gui-setup.exe"><img src="https://img.shields.io/badge/Windows-Installer-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Installer"></a> |
-            | Windows  | x64 (Portable ZIP) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-windows-portable.zip"><img src="https://img.shields.io/badge/Windows-x64--Portable--ZIP-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows x64 Portable ZIP"></a> |
-            | macOS    | Universal (.dmg) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-macos-universal.dmg"><img src="https://img.shields.io/badge/macOS-Universal-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Universal DMG"></a> |
-            | macOS    | Universal (.zip) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-macos-universal.zip"><img src="https://img.shields.io/badge/macOS-Universal-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Universal ZIP"></a> |
             | Linux    | x64 (tar.gz) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-linux.tar.gz"><img src="https://img.shields.io/badge/Linux-tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux tar.gz"></a> |
             | Linux    | x64 (AppImage) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/CCloud-${{ env.VERSION }}-linux.AppImage"><img src="https://img.shields.io/badge/Linux-AppImage-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux AppImage"></a> |
             | Linux    | x64 (.deb) | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/ccloud.deb"><img src="https://img.shields.io/badge/Linux-.deb-FCC624?style=for-the-badge&logo=debian&logoColor=white" alt="Linux .deb"></a> |
