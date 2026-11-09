@@ -1,21 +1,5 @@
 # Linux Installation Guide for CCloud
 
-## AppImage (Recommended)
-
-The AppImage is the easiest way to run CCloud on Linux. It's a self-contained package that includes all necessary dependencies.
-
-### Running the AppImage:
-
-1. Download the AppImage file from the releases page
-2. Make it executable:
-   ```bash
-   chmod +x CCloud-*.AppImage
-   ```
-3. Run the application:
-   ```bash
-   ./CCloud-*.AppImage
-   ```
-
 ## Tar.gz Archive
 
 The tar.gz archive contains the raw application files.
@@ -34,33 +18,6 @@ The tar.gz archive contains the raw application files.
    ```bash
    ./AppRun
    ```
-
-## DEB Package (Debian/Ubuntu)
-
-Install using the package manager:
-
-```bash
-sudo dpkg -i ccloud.deb
-```
-
-If there are dependency issues, run:
-```bash
-sudo apt-get install -f
-```
-
-## RPM Package (Red Hat/Fedora)
-
-Install using dnf (Fedora) or yum (older systems):
-
-```bash
-sudo dnf install ccloud.rpm
-```
-
-or
-
-```bash
-sudo yum install ccloud.rpm
-```
 
 ## Troubleshooting
 
