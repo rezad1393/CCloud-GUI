@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/media_item.dart';
 import '../utils/storage_utils.dart';
-import '../platform/vlc_launcher.dart';
+import '../platform/mpv_launcher.dart';
 
 class SingleMovieScreen extends StatefulWidget {
   final MediaItem movie;
@@ -499,7 +499,7 @@ class _SingleMovieScreenState extends State<SingleMovieScreen> {
                       child: OutlinedButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          final success = await VLCLauncher.launchPlayer(
+                          final success = await mpvLauncher.launchPlayer(
                             source.url,
                           );
                           if (!success) {
@@ -507,7 +507,7 @@ class _SingleMovieScreenState extends State<SingleMovieScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    VLCLauncher.playErrorMessage,
+                                    mpvLauncher.playErrorMessage,
                                   ),
                                 ),
                               );
@@ -521,7 +521,7 @@ class _SingleMovieScreenState extends State<SingleMovieScreen> {
                           ),
                         ),
                         child: Text(
-                          VLCLauncher.playButtonText,
+                          mpvLauncher.playButtonText,
                           style: GoogleFonts.vazirmatn(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
