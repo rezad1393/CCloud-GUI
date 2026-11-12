@@ -31,7 +31,8 @@ class StorageUtils {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
-
+_localPath=~/.comfig/ccloud;
+  
   static Future<File> get _localMoviesFile async {
     final path = await _localPath;
     return File('$path/movies.json');
