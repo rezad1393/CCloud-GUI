@@ -31,17 +31,10 @@ class StorageUtils {
     //final directory = await getApplicationDocumentsDirectory();
    // return directory.path;
     //return '${Platform.environment['HOME']}/.config/ccloud';
- 
-    Future<String> get _temppath async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<void> _createDirectory() async {
-    final String path = await _temppath;
-    final Directory directory = await Directory('$path/.config/ccloud').create(recursive: true);
-  }
-return directory.path;
+   final Directory directory = await getApplicationDocumentsDirectory();
+  final String path = await  directory.path;
+  final Directory directory2 = await Directory('$path/.config/ccloud').create(recursive: true);
+return directory2.path;
     
   }
   
