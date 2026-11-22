@@ -28,8 +28,9 @@ class MediaItemWithTimestamp {
 
 class StorageUtils {
   static Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
+    //final directory = await getApplicationDocumentsDirectory();
+   // return directory.path;
+    return '${Platform.environment['HOME']}/.comfig/ccloud"';
    // return "~/.comfig/ccloud" ;
   }
   
