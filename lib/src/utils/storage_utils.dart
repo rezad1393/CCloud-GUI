@@ -30,8 +30,8 @@ class StorageUtils {
   static Future<String> get _localPath async {
     //final directory = await getApplicationDocumentsDirectory();
    // return directory.path;
-    return '${Platform.environment['HOME']}/.comfig/ccloud"';
-   // return "~/.comfig/ccloud" ;
+    //return '${Platform.environment['HOME']}/.config/ccloud"';
+    return '"~/.config/ccloud"' ;
   }
   
   static Future<File> get _localMoviesFile async {
